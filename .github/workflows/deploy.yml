@@ -50,14 +50,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/vitalwatch-frontend:latest
           
-      - name: Set up Kubernetes
-        uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          
-      - name: Deploy to Kubernetes
-        run: kubectl apply -f k8s/
+      
         
       - name: Health Check
         run: |
