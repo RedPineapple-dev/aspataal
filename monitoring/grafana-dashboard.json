@@ -1,0 +1,85 @@
+{
+  "title": "VitalWatch Dashboard",
+  "panels": [
+    {
+      "type": "gauge",
+      "title": "Active Alerts",
+      "targets": [
+        {
+          "expr": "vitalwatch_active_alerts_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Critical Alerts Total",
+      "targets": [
+        {
+          "expr": "vitalwatch_critical_alerts_total",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "API Request Rate",
+      "targets": [
+        {
+          "expr": "rate(vitalwatch_api_requests_total[1m])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Patients Monitored",
+      "targets": [
+        {
+          "expr": "vitalwatch_patients_monitored",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "title": "Warnings vs Critical",
+      "targets": [
+        {
+          "expr": "vitalwatch_warnings_total",
+          "refId": "A"
+        },
+        {
+          "expr": "vitalwatch_critical_alerts_total",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Simulation Speed Multiplier (Chaos)",
+      "targets": [
+        {
+          "expr": "vitalwatch_sim_speed_multiplier",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Backend CPU vs Sim Speed (HPA trigger)",
+      "targets": [
+        {
+          "expr": "rate(process_cpu_seconds_total[1m])",
+          "refId": "A"
+        },
+        {
+          "expr": "vitalwatch_sim_speed_multiplier",
+          "refId": "B"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "version": 1
+}

@@ -1,0 +1,77 @@
+name: Deploy VitalWatch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+        
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+        
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+        
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Build and push backend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/vitalwatch-backend:latest
+          
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/vitalwatch-frontend:latest
+          
+      - name: Set up Kubernetes
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+          
+      - name: Deploy to Kubernetes
+        run: kubectl apply -f k8s/
+        
+      - name: Health Check
+        run: |
+          # Give it a moment to stabilize
+          sleep 10
+          # We check the backend service. In a real environment, you'd curl the public ingress/IP.
+          # We'll use a port-forward just to verify the pod is up if we can't hit the nodeport.
+          # For a simple health check action step on the actual deployed URL:
+          # (Assuming KUBE_CONFIG gives us access and NodePort is accessible, or we just test the pod)
+          kubectl port-forward service/backend-service 5000:5000 &
+          sleep 5
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/patients)
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Health check failed with status $HTTP_STATUS"
+            exit 1
+          fi
+          echo "Health check passed!"

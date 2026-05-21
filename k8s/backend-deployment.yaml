@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vitalwatch-backend
+  labels:
+    app: vitalwatch-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vitalwatch-backend
+  template:
+    metadata:
+      labels:
+        app: vitalwatch-backend
+    spec:
+      containers:
+        - name: vitalwatch-backend
+          image: vitalwatch-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PORT
+              value: "5000"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
