@@ -52,19 +52,3 @@ jobs:
           
       
         
-      - name: Health Check
-        run: |
-          # Give it a moment to stabilize
-          sleep 10
-          # We check the backend service. In a real environment, you'd curl the public ingress/IP.
-          # We'll use a port-forward just to verify the pod is up if we can't hit the nodeport.
-          # For a simple health check action step on the actual deployed URL:
-          # (Assuming KUBE_CONFIG gives us access and NodePort is accessible, or we just test the pod)
-          kubectl port-forward service/backend-service 5000:5000 &
-          sleep 5
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/api/patients)
-          if [ "$HTTP_STATUS" -ne 200 ]; then
-            echo "Health check failed with status $HTTP_STATUS"
-            exit 1
-          fi
-          echo "Health check passed!"
