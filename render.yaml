@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: aspataal-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/patients
+    envVars:
+      - key: PORT
+        value: 5000
